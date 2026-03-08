@@ -336,21 +336,7 @@ export default function App() {
     downloadFile('flip-deals-library.json', JSON.stringify(deals, null, 2), 'application/json');
   };
 
-  const importDeals = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    try {
-      const parsed = JSON.parse(text);
-      const list = Array.isArray(parsed) ? parsed : [parsed];
-      const cleaned = list.map((deal) => ({ ...createDefaultDeal(), ...deal, id: deal.id || uid('deal') }));
-      setDeals(cleaned);
-      setSelectedId(cleaned[0].id);
-      event.target.value = '';
-    } catch {
-      alert('That file could not be imported. Please use a JSON file exported from this app.');
-    }
-  };
+ 
 
  
   return (
