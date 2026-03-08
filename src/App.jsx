@@ -370,8 +370,7 @@ export default function App() {
         </div>
 
         <div className="import-export">
-          <button className="secondary" onClick={exportSelected}>Export Current Deal</button>
-          <button className="secondary" onClick={exportAll}>Export Deal Library</button>
+         
           <label className="file-button secondary">
             Import JSON
             <input type="file" accept="application/json" onChange={importDeals} />
