@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 const importDeals = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -454,6 +455,7 @@ export default function App() {
           </div>
         </section>
       </main>
+      <Analytics />
     </div>
   );
 }
