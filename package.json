@@ -1,0 +1,62 @@
+{
+  "name": "flip-deal-analyzer-desktop",
+  "productName": "Flip Deal Analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "main": "electron/main.cjs",
+  "type": "module",
+  "description": "Desktop flip deal analyzer for calculating offers, rehab budgets, financing, and profit.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron": "electron .",
+    "desktop": "concurrently -k \"vite\" \"wait-on tcp:5173 && electron .\"",
+    "pack": "npm run build && electron-builder --dir",
+    "dist:win": "npm run build && electron-builder --win portable",
+    "dist:win-installer": "npm run build && electron-builder --win nsis portable"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.peacefulhavenhomes.flipdealanalyzer",
+    "productName": "Flip Deal Analyzer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "artifactName": "${productName}-${version}-${target}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Flip Deal Analyzer.exe"
+    },
+    "nsis": {
+      "artifactName": "Flip Deal Analyzer Setup.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Flip Deal Analyzer"
+    }
+  }
+}

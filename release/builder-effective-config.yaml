@@ -1,0 +1,26 @@
+directories:
+  output: release
+  buildResources: build
+appId: com.peacefulhavenhomes.flipdealanalyzer
+productName: Flip Deal Analyzer
+files:
+  - filter:
+      - dist/**/*
+      - electron/**/*
+      - package.json
+win:
+  target:
+    - portable
+    - nsis
+  artifactName: ${productName}-${version}-${target}.${ext}
+portable:
+  artifactName: Flip Deal Analyzer.exe
+nsis:
+  artifactName: Flip Deal Analyzer Setup.exe
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Flip Deal Analyzer
+electronVersion: 37.10.3
