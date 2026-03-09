@@ -181,6 +181,21 @@ function decodeDealFromUrl(value) {
     return null;
   }
 }
+function encodeDealForUrl(deal) {
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(deal))));
+  } catch {
+    return '';
+  }
+}
+
+function decodeDealFromUrl(value) {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(value))));
+  } catch {
+    return null;
+  }
+}
 function buildPrintableReport(selectedDeal, summary) {
   const renoRows = selectedDeal.renovationItems
     .map(
