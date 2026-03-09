@@ -174,7 +174,13 @@ function encodeDealForUrl(deal) {
     return '';
   }
 }
-
+function decodeDealFromUrl(value) {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(value))));
+  } catch {
+    return null;
+  }
+}
 function buildPrintableReport(selectedDeal, summary) {
   const renoRows = selectedDeal.renovationItems
     .map(
