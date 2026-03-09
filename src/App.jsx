@@ -428,35 +428,42 @@ export default function App() {
   const selectedDeal = deals.find((d) => d.id === selectedId) || deals[0];
   const summary = useMemo(() => summarizeDeal(selectedDeal), [selectedDeal]);
 
-    useEffect(() => {
+   useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   const sharedPayload = params.get('deal');
 
-  if (sharedPayload) {
-    const decoded = decodeDealFromUrl(sharedPayload);
-    if (decoded) {
-      const sharedDeal = {
-        ...createDefaultDeal(),
-        ...decoded,
-        id: decoded.id || uid('deal'),
-      };
-      setDeals([sharedDeal]);
-      setSelectedId(sharedDeal.id);
-      return;
-    }
-  }
-
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const initial = createDefaultDeal();
-      setDeals([initial]);
-      setSelectedId(initial.id);
-      return;
+    const parsed = raw ? JSON.parse(raw) : [];
+    const safeDeals = Array.isArray(parsed) && parsed.length ? parsed : [createDefaultDeal()];
+
+    if (sharedPayload) {
+      const decoded = decodeDealFromUrl(sharedPayload);
+
+      if (decoded) {
+        const sharedDeal = {
+          ...createDefaultDeal(),
+          ...decoded,
+          id: decoded.id || uid('deal'),
+        };
+
+        const existingIndex = safeDeals.findIndex((d) => d.id === sharedDeal.id);
+
+        let nextDeals;
+        if (existingIndex >= 0) {
+          nextDeals = safeDeals.map((d) =>
+            d.id === sharedDeal.id ? { ...d, ...sharedDeal } : d
+          );
+        } else {
+          nextDeals = [sharedDeal, ...safeDeals];
+        }
+
+        setDeals(nextDeals);
+        setSelectedId(sharedDeal.id);
+        return;
+      }
     }
 
-    const parsed = JSON.parse(raw);
-    const safeDeals = Array.isArray(parsed) && parsed.length ? parsed : [createDefaultDeal()];
     setDeals(safeDeals);
     setSelectedId(safeDeals[0].id);
   } catch {
