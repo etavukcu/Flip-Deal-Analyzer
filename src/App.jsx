@@ -86,6 +86,15 @@ function createDefaultDeal() {
   };
 }
 
+// Clean short link using deal id instead of long encoded JSON
+function encodeDealForUrl(deal) {
+  return deal.id;
+}
+
+function decodeDealFromUrl(id, deals) {
+  return deals.find((d) => d.id === id) || null;
+}
+
 function calculateCost(item, { arv, offer }) {
   const value = toNumber(item.value);
   if (item.mode === 'percent_offer') return offer * value / 100;
