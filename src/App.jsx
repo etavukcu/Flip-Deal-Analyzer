@@ -490,10 +490,7 @@ const copyShareLink = async () => {
 </div>
         <div className="import-export">
          
-          <label className="file-button secondary">
-            Import JSON
-            <input type="file" accept="application/json" onChange={importDeals} />
-          </label>
+         
         </div>
 
         <div className="deal-list">
