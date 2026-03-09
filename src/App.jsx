@@ -168,7 +168,11 @@ function downloadFile(filename, contents, mime) {
   URL.revokeObjectURL(url);
 }
 function encodeDealForUrl(deal) {
-  return deal.id;
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(deal))));
+  } catch {
+    return '';
+  }
 }
 
 function buildPrintableReport(selectedDeal, summary) {
