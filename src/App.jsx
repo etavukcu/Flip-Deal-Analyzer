@@ -166,7 +166,96 @@ function downloadFile(filename, contents, mime) {
   a.click();
   URL.revokeObjectURL(url);
 }
+function encodeDealForUrl(deal) {
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(deal))));
+  } catch {
+    return '';
+  }
+}
 
+function buildPrintableReport(selectedDeal, summary) {
+  const renoRows = selectedDeal.renovationItems
+    .map(
+      (item) => `
+        <tr>
+          <td>${item.name || 'Unnamed item'}</td>
+          <td class="num">${currency.format(toNumber(item.amount))}</td>
+        </tr>`
+    )
+    .join('');
+
+  const costRows = summary.otherCostsDetailed
+    .map(
+      (item) => `
+        <tr>
+          <td>${item.name || 'Unnamed cost'}</td>
+          <td>${item.mode === 'fixed' ? 'Fixed $' : item.mode === 'percent_offer' ? '% of Offer' : '% of ARV'}</td>
+          <td class="num">${item.mode === 'fixed' ? currency.format(toNumber(item.value)) : `${toNumber(item.value)}%`}</td>
+          <td class="num">${currency.format(item.calculated)}</td>
+        </tr>`
+    )
+    .join('');
+
+  return `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Flip Deal Report</title>
+        <style>
+          body { font-family: Arial, Helvetica, sans-serif; color: #0f172a; margin: 32px; }
+          .header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; border-bottom:2px solid #e2e8f0; padding-bottom:18px; margin-bottom:24px; }
+          .brand { font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#64748b; }
+          h1 { margin:8px 0 4px; font-size:30px; }
+          h2 { margin:28px 0 12px; font-size:18px; border-bottom:1px solid #e2e8f0; padding-bottom:8px; }
+          .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+          .card { border:1px solid #e2e8f0; border-radius:16px; padding:16px; }
+          .label { font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; }
+          .value { font-size:24px; font-weight:700; margin-top:6px; }
+          table { width:100%; border-collapse:collapse; margin-top:8px; }
+          th, td { border-bottom:1px solid #e2e8f0; padding:10px 8px; text-align:left; font-size:14px; vertical-align:top; }
+          th { background:#f8fafc; color:#475569; }
+          .num { text-align:right; white-space:nowrap; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div class="brand">Peaceful Haven Homes</div>
+            <h1>Flip Deal Report</h1>
+          </div>
+          <div>Generated ${new Date().toLocaleString()}</div>
+        </div>
+
+        <h2>Deal Summary</h2>
+        <div class="grid">
+          <div class="card"><div class="label">Deal Name</div><div class="value" style="font-size:20px;">${selectedDeal.name || 'Untitled Deal'}</div></div>
+          <div class="card"><div class="label">Property Address</div><div class="value" style="font-size:20px;">${selectedDeal.address || 'Not provided'}</div></div>
+          <div class="card"><div class="label">ARV</div><div class="value">${currency.format(summary.arv)}</div></div>
+          <div class="card"><div class="label">Recommended Offer</div><div class="value">${currency.format(summary.recommendedOffer)}</div></div>
+          <div class="card"><div class="label">Projected Profit</div><div class="value">${currency.format(summary.projectedProfit)}</div></div>
+          <div class="card"><div class="label">Projected Margin</div><div class="value">${percent1.format(summary.projectedMargin)}</div></div>
+        </div>
+
+        <h2>Renovation Budget</h2>
+        <table>
+          <tr><th>Line Item</th><th class="num">Amount</th></tr>
+          ${renoRows}
+          <tr><td><strong>Total Hard Costs</strong></td><td class="num"><strong>${currency.format(summary.renoBase)}</strong></td></tr>
+          <tr><td><strong>Contingency</strong></td><td class="num"><strong>${currency.format(summary.contingency)}</strong></td></tr>
+          <tr><td><strong>Total Reno</strong></td><td class="num"><strong>${currency.format(summary.renoTotal)}</strong></td></tr>
+        </table>
+
+        <h2>Other Costs</h2>
+        <table>
+          <tr><th>Line Item</th><th>Mode</th><th class="num">Input</th><th class="num">Calculated</th></tr>
+          ${costRows}
+          <tr><td colspan="3"><strong>Total Other Costs</strong></td><td class="num"><strong>${currency.format(summary.otherCostsTotal)}</strong></td></tr>
+        </table>
+      </body>
+    </html>`;
+}
 function MetricCard({ label, value, hint }) {
   return (
     <div className="metric-card">
@@ -346,7 +435,36 @@ export default function App() {
  const exportSelected = () => {
     downloadFile(`${selectedDeal.name.replace(/\s+/g, '-').toLowerCase() || 'flip-deal'}.json`, JSON.stringify(selectedDeal, null, 2), 'application/json');
   };
+const exportPDF = () => {
+  const reportWindow = window.open('', '_blank', 'width=1100,height=900');
+  if (!reportWindow) {
+    alert('Please allow popups for this site to export PDF.');
+    return;
+  }
 
+  reportWindow.document.open();
+  reportWindow.document.write(buildPrintableReport(selectedDeal, summary));
+  reportWindow.document.close();
+  reportWindow.focus();
+  setTimeout(() => reportWindow.print(), 300);
+};
+
+const copyShareLink = async () => {
+  const payload = encodeDealForUrl(selectedDeal);
+  if (!payload) {
+    alert('Could not create share link.');
+    return;
+  }
+
+  const url = `${window.location.origin}${window.location.pathname}?deal=${payload}`;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    alert('Share link copied.');
+  } catch {
+    window.prompt('Copy this share link:', url);
+  }
+};
   const exportAll = () => {
     downloadFile('flip-deals-library.json', JSON.stringify(deals, null, 2), 'application/json');
   };
@@ -363,12 +481,13 @@ export default function App() {
           <p className="muted">Analyze offers, save multiple deals, and export your budgets.</p>
         </div>
 
-        <div className="sidebar-actions">
-          <button onClick={createDeal}>New Deal</button>
-          <button className="secondary" onClick={duplicateDeal}>Duplicate</button>
-          <button className="secondary" onClick={deleteDeal} disabled={deals.length === 1}>Delete</button>
-        </div>
-
+<div className="sidebar-actions">
+  <button onClick={createDeal}>New Deal</button>
+  <button className="secondary" onClick={duplicateDeal}>Duplicate</button>
+  <button className="secondary" onClick={deleteDeal} disabled={deals.length === 1}>Delete</button>
+  <button className="secondary" onClick={exportPDF}>Export PDF</button>
+  <button className="secondary" onClick={copyShareLink}>Copy Share Link</button>
+</div>
         <div className="import-export">
          
           <label className="file-button secondary">
