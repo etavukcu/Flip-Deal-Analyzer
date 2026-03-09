@@ -7,14 +7,7 @@ const importDeals = async (event) => {
       const parsed = JSON.parse(text);
       const list = Array.isArray(parsed) ? parsed : [parsed];
       const cleaned = list.map((deal) => ({ ...createDefaultDeal(), ...deal, id: deal.id || uid('deal') }));
-        // Clean short link using deal id instead of long encoded JSON
-       function encodeDealForUrl(deal) {
-       return deal.id;
-}
-
-function decodeDealFromUrl(id, deals) {
-  return deals.find((d) => d.id === id) || null;
-}
+     
       setDeals(cleaned);
       setSelectedId(cleaned[0].id);
       event.target.value = '';
