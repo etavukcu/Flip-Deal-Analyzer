@@ -244,14 +244,19 @@ function buildPrintableReport(selectedDeal, summary) {
           <tr><td><strong>Total Reno</strong></td><td class="num"><strong>${currency.format(summary.renoTotal)}</strong></td></tr>
         </table>
 
-        <h2>Other Costs</h2>
-        <table>
-          <tr><th>Line Item</th><th>Mode</th><th class="num">Input</th><th class="num">Calculated</th></tr>
-          ${costRows}
-          <tr><td colspan="3"><strong>Total Other Costs</strong></td><td class="num"><strong>${currency.format(summary.otherCostsTotal)}</strong></td></tr>
-        </table>
-      </body>
-    </html>`;
+       <h2>Other Costs</h2>
+<table>
+  <tr><th>Line Item</th><th>Mode</th><th class="num">Input</th><th class="num">Calculated</th></tr>
+  ${costRows}
+  <tr><td colspan="3"><strong>Total Other Costs</strong></td><td class="num"><strong>${currency.format(summary.otherCostsTotal)}</strong></td></tr>
+</table>
+
+<h2>Deal Notes</h2>
+<div style="border:1px solid #e2e8f0; border-radius:16px; padding:16px; min-height:80px; white-space:pre-wrap;">
+  ${selectedDeal.notes || 'No notes added.'}
+</div>
+</body>
+</html>`;
 }
 function MetricCard({ label, value, hint }) {
   return (
