@@ -545,12 +545,15 @@ const copyShareLink = async () => {
  
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div>
-          <div className="eyebrow">Desktop App</div>
-          <h1>Professional Flip Deal Analyzer</h1>
-          <p className="muted">Analyze offers, save multiple deals, and export your budgets.</p>
-        </div>
+     <aside className="sidebar">
+  <div>
+    <div className="eyebrow">Peaceful Haven Homes</div>
+    <h1>Professional Flip Deal Analyzer</h1>
+    <p className="muted">
+      Powered by Peaceful Haven Homes<br />
+      423-777-6849
+    </p>
+  </div>
 
 <div className="sidebar-actions">
   <button onClick={createDeal}>New Deal</button>
