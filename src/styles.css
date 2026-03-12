@@ -15,7 +15,7 @@ button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 .app-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
 .sidebar {
-  background: var(--phh-primary)
+  background: #0f172a;
   color: #e2e8f0;
   padding: 24px;
   display: flex;
