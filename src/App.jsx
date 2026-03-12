@@ -520,7 +520,7 @@ const copyShareLink = async () => {
   <div style={{textAlign:"center", marginBottom:"20px"}}>
 
     <img
-      src="/logo.png"
+      src="src/logo.png"
       alt="Peaceful Haven Homes"
       style={{width:"160px", marginBottom:"10px"}}
     />
