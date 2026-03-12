@@ -1,20 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-const importDeals = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    try {
-      const parsed = JSON.parse(text);
-      const list = Array.isArray(parsed) ? parsed : [parsed];
-      const cleaned = list.map((deal) => ({ ...createDefaultDeal(), ...deal, id: deal.id || uid('deal') }));
-     
-      setDeals(cleaned);
-      setSelectedId(cleaned[0].id);
-      event.target.value = '';
-    } catch {
-      alert('That file could not be imported. Please use a JSON file exported from this app.');
-    }
-  };
+
 
 const currency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -181,21 +166,7 @@ function decodeDealFromUrl(value) {
     return null;
   }
 }
-function encodeDealForUrl(deal) {
-  try {
-    return btoa(unescape(encodeURIComponent(JSON.stringify(deal))));
-  } catch {
-    return '';
-  }
-}
 
-function decodeDealFromUrl(value) {
-  try {
-    return JSON.parse(decodeURIComponent(escape(atob(value))));
-  } catch {
-    return null;
-  }
-}
 function buildPrintableReport(selectedDeal, summary) {
   const renoRows = selectedDeal.renovationItems
     .map(
