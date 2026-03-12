@@ -31,7 +31,7 @@ button, .file-button {
   border: 0;
   padding: 12px 14px;
   border-radius: 14px;
-  background: #2563eb;
+  background: var(--phh-accent);
   color: white;
   font-weight: 600;
 }
