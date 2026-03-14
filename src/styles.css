@@ -22,6 +22,18 @@ button { cursor: pointer; }
   flex-direction: column;
   gap: 18px;
 }
+.sidebar-brand {
+  margin-bottom: 14px;
+}
+.sidebar-logo {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, .35);
+  background: rgba(248, 250, 252, .06);
+  padding: 8px;
+}
 .sidebar h1 { margin: 0; font-size: 28px; line-height: 1.1; }
 .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; opacity: .75; margin-bottom: 8px; }
 .muted { color: #64748b; }
