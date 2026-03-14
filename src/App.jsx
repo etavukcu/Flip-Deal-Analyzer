@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import brandLogo from './logo.png';
 
 
 const currency = new Intl.NumberFormat('en-US', {
@@ -518,6 +519,9 @@ const copyShareLink = async () => {
     <div className="app-shell">
   <aside className="sidebar">
   <div>
+    <div className="sidebar-brand">
+      <img src={brandLogo} alt="Peaceful Haven Homes logo" className="sidebar-logo" />
+    </div>
     <div className="eyebrow">Peaceful Haven Homes</div>
     <h1>Professional Flip Deal Analyzer</h1>
     <p className="muted">
