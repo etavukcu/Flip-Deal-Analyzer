@@ -10,10 +10,10 @@
   background: #eef2f7;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); }
+body { margin: 0; background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); overflow-x: hidden; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
-.app-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+.app-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; width: 100%; max-width: 100%; }
 .sidebar {
   background: #0f172a;
   color: #e2e8f0;
@@ -34,10 +34,20 @@ button { cursor: pointer; }
   background: rgba(248, 250, 252, .06);
   padding: 8px;
 }
-.sidebar h1 { margin: 0; font-size: 28px; line-height: 1.1; }
+.sidebar h1 { margin: 0; font-size: 28px; line-height: 1.1; text-align: center; }
 .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; opacity: .75; margin-bottom: 8px; }
 .muted { color: #64748b; }
 .sidebar .muted { color: #94a3b8; }
+.sidebar-company {
+  text-align: center;
+  font-weight: 700;
+}
+.sidebar-contact {
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.sidebar-contact strong { font-weight: 700; }
 .sidebar-actions, .import-export { display: grid; gap: 10px; }
 button, .file-button {
   border: 0;
@@ -65,7 +75,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 .deal-card strong { color: white; }
 .deal-card.active { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,.2) inset; }
-.main-content { padding: 24px; display: grid; gap: 20px; }
+.main-content { padding: 24px; display: grid; gap: 20px; min-width: 0; }
 .panel {
   background: rgba(255,255,255,.94);
   border: 1px solid #dbe4ee;
@@ -127,4 +137,6 @@ textarea { resize: vertical; min-height: 220px; }
   .hero-grid, .metrics-grid, .two-col, .logic-grid { grid-template-columns: 1fr; }
   .main-content { padding: 14px; }
   .sidebar { padding: 16px; }
+  .sidebar-brand { display: flex; justify-content: center; }
+  .sidebar-logo { margin: 0 auto; }
 }
