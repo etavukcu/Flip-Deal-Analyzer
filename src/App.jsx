@@ -522,11 +522,11 @@ const copyShareLink = async () => {
     <div className="sidebar-brand">
       <img src={brandLogo} alt="Peaceful Haven Homes logo" className="sidebar-logo" />
     </div>
-    <div className="eyebrow">Peaceful Haven Homes</div>
+    <div className="eyebrow sidebar-company">Peaceful Haven Homes</div>
     <h1>Professional Flip Deal Analyzer</h1>
-    <p className="muted">
-      Powered by Peaceful Haven Homes<br />
-      423-777-6849
+    <p className="muted sidebar-contact">
+      <strong>Peaceful Haven Homes</strong><br />
+      <strong>423-777-6849</strong>
     </p>
   </div>
 
