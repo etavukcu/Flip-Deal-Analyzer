@@ -121,7 +121,20 @@ function summarizeDeal(deal) {
   const totalLoanBasis = financedPurchase + financedReno;
   const estimatedPointsCost = totalLoanBasis * (toNumber(deal.lenderPoints) / 100);
   const estimatedInterestCarry = totalLoanBasis * (toNumber(deal.annualInterestRate) / 100) * (toNumber(deal.monthsHeld) / 12);
-  const cashNeededBeforeReserves = totalProjectCost - totalLoanBasis;
+
+  const categorizedOtherCosts = otherCostsDetailed.reduce((acc, item) => {
+    const name = String(item.name || '').toLowerCase();
+    if (name.includes('financing')) acc.financingCost += item.calculated;
+    if (name.includes('holding')) acc.holdingCost += item.calculated;
+    if (name.includes('insurance')) acc.insuranceCost += item.calculated;
+    if (name.includes('selling') || name.includes('commission')) acc.sellingCost += item.calculated;
+    return acc;
+  }, { financingCost: 0, insuranceCost: 0, holdingCost: 0, sellingCost: 0 });
+
+  const financingCosts = estimatedPointsCost + estimatedInterestCarry;
+  const nonFinancedCosts = categorizedOtherCosts.insuranceCost + categorizedOtherCosts.holdingCost + categorizedOtherCosts.sellingCost;
+  const projectCostExcludingDerivedCosts = totalProjectCost - categorizedOtherCosts.financingCost - nonFinancedCosts;
+  const cashNeededBeforeReserves = (projectCostExcludingDerivedCosts - totalLoanBasis) + financingCosts + nonFinancedCosts;
 
   return {
     arv,
