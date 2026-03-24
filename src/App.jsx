@@ -111,17 +111,38 @@ function summarizeDeal(deal) {
     calculated: calculateCost(item, { arv, offer: recommendedOffer }),
   }));
 
+  const categorizedCosts = otherCostsDetailed.reduce(
+    (acc, item) => {
+      const label = String(item.name || '').toLowerCase();
+      const amount = item.calculated;
+
+      if (label.includes('insurance')) acc.insurance += amount;
+      if (label.includes('holding')) acc.holding += amount;
+      if (label.includes('selling')) acc.selling += amount;
+
+      return acc;
+    },
+    { insurance: 0, holding: 0, selling: 0 }
+  );
+
   const otherCostsTotal = otherCostsDetailed.reduce((sum, item) => sum + item.calculated, 0);
   const totalProjectCost = recommendedOffer + renoTotal + otherCostsTotal;
   const projectedProfit = arv - totalProjectCost;
   const projectedMargin = arv ? projectedProfit / arv : 0;
 
   const financedPurchase = recommendedOffer * (toNumber(deal.financedPercentOfPurchase) / 100);
-  const financedReno = renoBase * (toNumber(deal.financedPercentOfReno) / 100);
+  const financedReno = renoTotal * (toNumber(deal.financedPercentOfReno) / 100);
   const totalLoanBasis = financedPurchase + financedReno;
   const estimatedPointsCost = totalLoanBasis * (toNumber(deal.lenderPoints) / 100);
   const estimatedInterestCarry = totalLoanBasis * (toNumber(deal.annualInterestRate) / 100) * (toNumber(deal.monthsHeld) / 12);
-  const cashNeededBeforeReserves = totalProjectCost - totalLoanBasis;
+  const projectCostForCashNeeded = recommendedOffer + renoTotal;
+  const cashNeededBeforeReserves =
+    (projectCostForCashNeeded - totalLoanBasis)
+    + estimatedPointsCost
+    + estimatedInterestCarry
+    + categorizedCosts.insurance
+    + categorizedCosts.holding
+    + categorizedCosts.selling;
 
   return {
     arv,
@@ -140,6 +161,10 @@ function summarizeDeal(deal) {
     totalLoanBasis,
     estimatedPointsCost,
     estimatedInterestCarry,
+    insuranceCosts: categorizedCosts.insurance,
+    holdingCosts: categorizedCosts.holding,
+    sellingCosts: categorizedCosts.selling,
+    projectCostForCashNeeded,
     cashNeededBeforeReserves,
   };
 }
@@ -594,7 +619,7 @@ const copyShareLink = async () => {
           <MetricCard label="Projected Profit" value={currency.format(summary.projectedProfit)} hint={`${percent1.format(summary.projectedMargin)} of ARV`} />
           <MetricCard label="Reno + Contingency" value={currency.format(summary.renoTotal)} hint={`${currency.format(summary.renoBase)} hard costs + ${currency.format(summary.contingency)} contingency`} />
           <MetricCard label="Other Costs" value={currency.format(summary.otherCostsTotal)} hint="Selling, financing, closing, insurance, utilities, misc" />
-          <MetricCard label="Cash Needed" value={currency.format(summary.cashNeededBeforeReserves)} hint="Project cost minus estimated financed amount" />
+          <MetricCard label="Cash Needed" value={currency.format(summary.cashNeededBeforeReserves)} hint="(Project cost - loan) + points + interest + insurance + holding + selling" />
           <MetricCard label="Estimated Loan Basis" value={currency.format(summary.totalLoanBasis)} hint={`${currency.format(summary.estimatedPointsCost)} points + ${currency.format(summary.estimatedInterestCarry)} carry`} />
         </section>
 
@@ -614,6 +639,22 @@ const copyShareLink = async () => {
             </div>
           </div>
 
+          <div className="panel">
+            <div className="panel-header"><h3>Cash Needed Breakdown</h3></div>
+            <div className="logic-grid">
+              <div className="logic-item"><span>Project Cost (Offer + Reno)</span><strong>{currency.format(summary.projectCostForCashNeeded)}</strong></div>
+              <div className="logic-item"><span>Loan Proceeds</span><strong>{currency.format(summary.totalLoanBasis)}</strong></div>
+              <div className="logic-item"><span>Points</span><strong>{currency.format(summary.estimatedPointsCost)}</strong></div>
+              <div className="logic-item"><span>Interest Carry</span><strong>{currency.format(summary.estimatedInterestCarry)}</strong></div>
+              <div className="logic-item"><span>Insurance</span><strong>{currency.format(summary.insuranceCosts)}</strong></div>
+              <div className="logic-item"><span>Holding Costs</span><strong>{currency.format(summary.holdingCosts)}</strong></div>
+              <div className="logic-item"><span>Selling Costs</span><strong>{currency.format(summary.sellingCosts)}</strong></div>
+              <div className="logic-item"><span>Cash Needed</span><strong>{currency.format(summary.cashNeededBeforeReserves)}</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="two-col">
           <div className="panel">
             <div className="panel-header"><h3>Deal Notes</h3></div>
             <textarea value={selectedDeal.notes} onChange={(e) => patchDeal({ notes: e.target.value })} placeholder="Scope notes, contractor comments, neighborhood notes, buyer feedback..." rows="10" />
