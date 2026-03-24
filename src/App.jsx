@@ -121,7 +121,31 @@ function summarizeDeal(deal) {
   const totalLoanBasis = financedPurchase + financedReno;
   const estimatedPointsCost = totalLoanBasis * (toNumber(deal.lenderPoints) / 100);
   const estimatedInterestCarry = totalLoanBasis * (toNumber(deal.annualInterestRate) / 100) * (toNumber(deal.monthsHeld) / 12);
-  const cashNeededBeforeReserves = totalProjectCost - totalLoanBasis;
+
+  const categorizedOtherCosts = otherCostsDetailed.reduce((acc, item) => {
+    const name = String(item.name || '').toLowerCase();
+    const isHolding = name.includes('holding');
+    const isSelling = name.includes('selling');
+
+    if (isHolding) acc.holdingCost += item.calculated;
+    if (isSelling) acc.sellingCost += item.calculated;
+    return acc;
+  }, { holdingCost: 0, sellingCost: 0 });
+
+  const pointsPercent = toNumber(deal.lenderPoints) / 100;
+  const interestRate = toNumber(deal.annualInterestRate) / 100;
+  const holdingPeriodMonths = toNumber(deal.monthsHeld);
+  const financedPurchasePercent = toNumber(deal.financedPercentOfPurchase) / 100;
+  const financedRenoPercent = toNumber(deal.financedPercentOfReno) / 100;
+
+  const sellingCost = categorizedOtherCosts.sellingCost;
+  const holdingCost = categorizedOtherCosts.holdingCost;
+  const cashNeededBeforeReserves = (recommendedOffer * (1 - financedPurchasePercent))
+    + (renoBase * (1 - financedRenoPercent))
+    + sellingCost
+    + holdingCost
+    + (totalLoanBasis * pointsPercent)
+    + (totalLoanBasis * interestRate * (holdingPeriodMonths / 12));
 
   return {
     arv,
