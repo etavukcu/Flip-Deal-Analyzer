@@ -121,7 +121,34 @@ function summarizeDeal(deal) {
   const totalLoanBasis = financedPurchase + financedReno;
   const estimatedPointsCost = totalLoanBasis * (toNumber(deal.lenderPoints) / 100);
   const estimatedInterestCarry = totalLoanBasis * (toNumber(deal.annualInterestRate) / 100) * (toNumber(deal.monthsHeld) / 12);
-  const cashNeededBeforeReserves = totalProjectCost - totalLoanBasis;
+
+  const categorizedOtherCosts = otherCostsDetailed.reduce((acc, item) => {
+    const name = String(item.name || '').toLowerCase();
+    const isFinancing = name.includes('financing');
+    const isHolding = name.includes('holding');
+    const isInsurance = name.includes('insurance');
+    const isSelling = name.includes('selling') || name.includes('commission');
+
+    if (isFinancing) acc.financingCost += item.calculated;
+    if (isHolding) acc.holdingCost += item.calculated;
+    if (isInsurance) acc.insuranceCost += item.calculated;
+    if (isSelling) acc.sellingCost += item.calculated;
+    if (!isFinancing && !isHolding && !isInsurance && !isSelling) acc.otherIncludedCost += item.calculated;
+    return acc;
+  }, { financingCost: 0, insuranceCost: 0, holdingCost: 0, sellingCost: 0, otherIncludedCost: 0 });
+
+  const projectCost = recommendedOffer + renoTotal + categorizedOtherCosts.otherIncludedCost;
+  const loanProceeds = totalLoanBasis;
+  const pointsPercent = toNumber(deal.lenderPoints) / 100;
+  const interestRate = toNumber(deal.annualInterestRate) / 100;
+  const holdingPeriodMonths = toNumber(deal.monthsHeld);
+  const insuranceCost = categorizedOtherCosts.insuranceCost;
+  const holdingCost = categorizedOtherCosts.holdingCost;
+  const sellingCost = categorizedOtherCosts.sellingCost;
+
+  const financingCosts = (loanProceeds * pointsPercent) + (loanProceeds * interestRate * (holdingPeriodMonths / 12));
+  const nonFinancedCosts = insuranceCost + holdingCost + sellingCost;
+  const cashNeededBeforeReserves = (projectCost - loanProceeds) + financingCosts + nonFinancedCosts;
 
   return {
     arv,
