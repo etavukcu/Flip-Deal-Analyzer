@@ -111,6 +111,21 @@ function summarizeDeal(deal) {
     calculated: calculateCost(item, { arv, offer: recommendedOffer }),
   }));
 
+  const categorizedCosts = otherCostsDetailed.reduce(
+    (acc, item) => {
+      const label = String(item.name || '').toLowerCase();
+      const amount = item.calculated;
+
+      if (label.includes('insurance')) acc.insurance += amount;
+      if (label.includes('holding')) acc.holding += amount;
+      if (label.includes('selling')) acc.selling += amount;
+      if (label.includes('interest') || label.includes('points')) acc.financing += amount;
+
+      return acc;
+    },
+    { insurance: 0, holding: 0, selling: 0, financing: 0 }
+  );
+
   const otherCostsTotal = otherCostsDetailed.reduce((sum, item) => sum + item.calculated, 0);
   const totalProjectCost = recommendedOffer + renoTotal + otherCostsTotal;
   const projectedProfit = arv - totalProjectCost;
@@ -121,7 +136,18 @@ function summarizeDeal(deal) {
   const totalLoanBasis = financedPurchase + financedReno;
   const estimatedPointsCost = totalLoanBasis * (toNumber(deal.lenderPoints) / 100);
   const estimatedInterestCarry = totalLoanBasis * (toNumber(deal.annualInterestRate) / 100) * (toNumber(deal.monthsHeld) / 12);
-  const cashNeededBeforeReserves = totalProjectCost - totalLoanBasis;
+  const projectCostForCashNeeded = totalProjectCost
+    - categorizedCosts.insurance
+    - categorizedCosts.holding
+    - categorizedCosts.selling
+    - categorizedCosts.financing;
+  const cashNeededBeforeReserves =
+    (projectCostForCashNeeded - totalLoanBasis)
+    + estimatedPointsCost
+    + estimatedInterestCarry
+    + categorizedCosts.insurance
+    + categorizedCosts.holding
+    + categorizedCosts.selling;
 
   return {
     arv,
@@ -140,6 +166,10 @@ function summarizeDeal(deal) {
     totalLoanBasis,
     estimatedPointsCost,
     estimatedInterestCarry,
+    insuranceCosts: categorizedCosts.insurance,
+    holdingCosts: categorizedCosts.holding,
+    sellingCosts: categorizedCosts.selling,
+    projectCostForCashNeeded,
     cashNeededBeforeReserves,
   };
 }
@@ -594,7 +624,7 @@ const copyShareLink = async () => {
           <MetricCard label="Projected Profit" value={currency.format(summary.projectedProfit)} hint={`${percent1.format(summary.projectedMargin)} of ARV`} />
           <MetricCard label="Reno + Contingency" value={currency.format(summary.renoTotal)} hint={`${currency.format(summary.renoBase)} hard costs + ${currency.format(summary.contingency)} contingency`} />
           <MetricCard label="Other Costs" value={currency.format(summary.otherCostsTotal)} hint="Selling, financing, closing, insurance, utilities, misc" />
-          <MetricCard label="Cash Needed" value={currency.format(summary.cashNeededBeforeReserves)} hint="Project cost minus estimated financed amount" />
+          <MetricCard label="Cash Needed" value={currency.format(summary.cashNeededBeforeReserves)} hint="(Project cost - loan) + points + interest + insurance + holding + selling" />
           <MetricCard label="Estimated Loan Basis" value={currency.format(summary.totalLoanBasis)} hint={`${currency.format(summary.estimatedPointsCost)} points + ${currency.format(summary.estimatedInterestCarry)} carry`} />
         </section>
 
